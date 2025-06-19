@@ -3,4 +3,5 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    def is_valid_user(self):
+        return self.first_name != self.last_name

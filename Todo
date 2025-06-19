@@ -4,7 +4,7 @@
     - Initialize the project workspace.
     - Create GitHub Actions for Continuous Integration (CI).
     - Set up Docker for Continuous Deployment/Delivery (CD).
-    - Implement basic tests to display "Hello, World!".
+    - Implement basic tests to make sure the test working.
 
 2. **Database**
     - Design your database schema (Class).
