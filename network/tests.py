@@ -1,17 +1,26 @@
 from django.test import TestCase
-
 from .models import User
 
-# Create your tests here.
 class UserTestCase(TestCase):
 
     def setUp(self):
 
-        # Create user
-        User.objects.create(username="mazen", first_name="Mazen", last_name="Magdy")
+        # Create users
+        foo = User.objects.create(username="foo")
+        bar = User.objects.create(username="bar")
+        baz = User.objects.create(username="baz")
 
+        # Set up followers
+        foo.following.add(foo)
+        bar.following.add(baz)
+        baz.following.add(bar)
 
-    def test_valid_user(self):
-        """ Check first name not equal last name """
-        user = User.objects.get(username="mazen")
-        self.assertTrue(user.is_valid_user())
+    def test_valid_follower(self):
+        """User is NOT following themselves, should be valid."""
+        user = User.objects.get(username="baz")
+        self.assertTrue(user.is_valid_follower())
+
+    def test_invalid_follower(self):
+        """User is following themselves, should be invalid."""
+        user = User.objects.get(username="foo")
+        self.assertFalse(user.is_valid_follower())

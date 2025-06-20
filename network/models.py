@@ -3,5 +3,39 @@ from django.db import models
 
 
 class User(AbstractUser):
-    def is_valid_user(self):
-        return self.first_name != self.last_name
+    followers = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='following',
+        blank=True
+    )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "followers": self.followers.count(),
+            "following": self.following.count()
+        }
+    
+    def is_valid_follower(self):
+        return not self.following.filter(pk=self.pk).exists()
+
+
+class Post(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.username,
+            "content": self.content,
+            "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
+            "likes": self.likes.count()
+        }
