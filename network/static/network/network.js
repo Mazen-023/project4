@@ -19,6 +19,7 @@ function load_posts() {
             // Create new post
             let div = document.createElement('div');
             div.className = 'post';
+            div.dataset.id = post.id;
             div.innerHTML = `
             <div class="post_header">
                 <div>
@@ -40,7 +41,7 @@ function load_posts() {
 
             // Add event listener for the edit link
             div.querySelector('.post_actions a').addEventListener('click', function() {
-                // Handle edit post
+                edit(post.id, post.content)
             });
 
             // Add event listener for the like button
@@ -72,6 +73,33 @@ function create() {
     });
 }
 
+function edit(postId, content) {
+    let div = document.querySelector(`div[data-id="${postId}"]`);
+    let p = div.querySelector('p');
+    let textarea = document.createElement('textarea');
+    textarea.className = "form-control content";
+    textarea.innerHTML = content;
+    
+    p.replaceWith(textarea)
+
+}
+
+function update(postId, content) {
+    fetch(`/update/${postId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            content: content,
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log(result);
+    })
+    .catch(error => {
+        console.log("Error:", error);
+    });
+}
+
 function like(postId) {
     fetch(`/like/${postId}`, {
         method: 'POST'
@@ -79,7 +107,8 @@ function like(postId) {
     .then(response => response.json())
     .then(result => {
         console.log(result);
-        const likeSpan = document.querySelector(`span[data-id="${postId}"]`);
+        const post = document.querySelector(`div[data-id="${postId}"]`)
+        const likeSpan = post.querySelector('.post_footer span');
         if (likeSpan) {
             likeSpan.innerHTML = result["likes"];
         }

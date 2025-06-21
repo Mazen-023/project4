@@ -97,8 +97,21 @@ def read(request):
 
 @csrf_exempt
 @login_required
-def update(request):
-    pass
+def update(request, post_id):
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+
+   # Query for requested post
+    try:
+        post = Post.objects.get(user=request.user, pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Email not found."}, status=404)
+    
+    data = json.loads(request.body)
+    post.content = data["content"]
+    post.save()
+    return HttpResponse(status=204)
+
 
 
 @csrf_exempt
