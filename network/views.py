@@ -105,3 +105,25 @@ def update(request):
 @login_required
 def delete(request):
     pass
+
+
+@csrf_exempt
+@login_required
+def like(request, post_id):
+
+    # Toggle like via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)  
+      
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found."}, status=404)
+
+    # Toggle like
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        return JsonResponse({"likes": post.likes.count()}, status=200)
+    else:
+        post.likes.add(request.user)
+        return JsonResponse({"likes": post.likes.count()}, status=200)
